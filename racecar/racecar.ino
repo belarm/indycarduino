@@ -1,9 +1,10 @@
 // Arduino program to control a timer based on a series of triggers
-// Written by Kristen Arnold
+// @author Kristen Arnold
 
 
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <RGBmatrixPanel.h> // Hardware-specific library
+#include <StopWatch.h> // Stop watch library
 
 // Similar to F(), but for PROGMEM string pointers rather than literals
 #define F2(progmem_ptr) (const __FlashStringHelper *)progmem_ptr
@@ -19,63 +20,83 @@
 // until the first call to swapBuffers().  This is normal.
 RGBmatrixPanel matrix(A, B, C, CLK, LAT, OE, true);
 
-// Analog pins for reading the available sensors
-int lugOne   = 8;
-int lugTwo   = 9;
-int lugThree = 10;
-int lugFour  = 11;
-int lugFive  = 12;
-int jack     = 13;
-int fuel     = 14;
-
+// Analog pins for reading the lug nut sensors
 int lugs[] = {8, 9, 10, 11, 12};
+
+int jack = 14;
+
+StopWatch sw(StopWatch::SECONDS);
 
 const int SENSOR_THRESHOLD = 100;
 
-unsigned long timerStart;
+boolean reset = false;
+boolean cycleComplete = true;
+boolean phaseOne = false;
 
 void setup()
 {
   matrix.begin();
   matrix.setTextWrap(false);
   matrix.setTextSize(1);
-  
-  Serial.begin(9600);
-  
-  
     
+  Serial.begin(9600);
 }
 
 void loop()
 { 
   int* vals = readSensors();
   int val;
-  boolean reset = false;
   
-  if (vals[0] && vals[1] && vals[2] && vals[3] && vals[4]) {
-    reset = true;
-  } else {
-    drawScreen("reset");
-  }
+  //boolean startTimer = false;
 
+  // Begin sequence if all lugs are returned to green status after power on
   if (reset) {
-  
-    unsigned long timerStart = millis();
-  
-    for (int i = 0; i< 100000; i++) {
     
-      unsigned long timeReading = getTime();
-  
-      drawScreen(String(timeReading) + "sec");
-  
-      if (val < 1023) {
-        //drawScreen("Off");
+    // Begin sequence if jack is triggered
+    if (analogRead(jack) >= 686 || !cycleComplete) {
+      //Serial.println("Jack has been raised");
+      cycleComplete = false;
+      
+      // Watch for all lugs to go red
+      if (phaseOne == false) {
+        //startTimer = true;
+        Serial.println("Phase one initiated");
+        sw.start();
+            
+        // When the lugs have all gone red trigger that this step is complete
+        if (!vals[0] && !vals[1] && !vals[2] && !vals[3] && !vals[4]) {
+          Serial.println("All lugs have turned red");
+          phaseOne = true;  
+        }
       } else {
-        drawScreen("On");
-        timerStart = millis();
+        Serial.println("Phase two initiated");
+        
+        // After cycling thru red, now all lugs must cycle back to green
+        if (vals[0] && vals[1] && vals[2] && vals[3] && vals[4]) {
+          Serial.println("All lugs have turned green");
+          phaseOne = false;
+          cycleComplete = true;
+          sw.stop();
+        }
       }
-      delay(100);
-    } 
+      
+      drawScreen(String(sw.elapsed()) + "sec");
+        
+    } else {
+      drawScreen("Ready!");
+      Serial.println("Jack has been lowered");
+    }
+    
+  } else {
+    Serial.println("Initializing system");
+    
+    if (vals[0] && vals[1] && vals[2] && vals[3] && vals[4]) {
+      Serial.println("All systems go");
+      reset = true;
+    } else {
+      Serial.println("Please reset lugs");
+      drawScreen("reset");
+    }
   }
 }
 
@@ -87,22 +108,6 @@ static void drawScreen(String text)
   matrix.print(text);
   matrix.swapBuffers(false);
 
-}
-
-unsigned long getTime()
-{
-    unsigned long time = millis();
-    
-    unsigned long elapsed = (time - timerStart) / 1000;
-    //Serial.print("time: ");
-    //Serial.println(time);
-    //Serial.print("timeStart: ");
-    //Serial.println(timerStart);
-    //Serial.print("elapsed");
-    //Serial.println(elapsed);
-    //Serial.println("------------");
-    
-    return elapsed;
 }
 
 static int* readSensors()
@@ -120,7 +125,6 @@ static boolean readSensor(int pin)
 {
 
   int val = analogRead(pin);
-  //Serial.println(val);
   if (val > SENSOR_THRESHOLD) {
     return true;
   }
