@@ -28,6 +28,10 @@ int lugFive  = 12;
 int jack     = 13;
 int fuel     = 14;
 
+int lugs[] = {8, 9, 10, 11, 12};
+
+const int SENSOR_THRESHOLD = 100;
+
 unsigned long timerStart;
 
 void setup()
@@ -38,32 +42,41 @@ void setup()
   
   Serial.begin(9600);
   
-  int timeStart = millis();
   
+    
 }
 
 void loop()
 { 
+  int* vals = readSensors();
   int val;
+  boolean reset = false;
   
-  unsigned long timerStart = millis();
-  
-  for (int i = 0; i< 1000; i++) {
+  if (vals[0] && vals[1] && vals[2] && vals[3] && vals[4]) {
+    reset = true;
+  } else {
+    drawScreen("reset");
+  }
 
-    val = analogRead(8);
-
-    unsigned long timeReading = getTime();
+  if (reset) {
   
-    drawScreen(String(timeReading) + "sec");
+    unsigned long timerStart = millis();
   
-//    if (val < 1023) {
-//      //drawScreen("Off");
-//    } else {
-//      drawScreen("On");
-//      timerStart = millis();
-//    }
-    delay(100);
-  } 
+    for (int i = 0; i< 100000; i++) {
+    
+      unsigned long timeReading = getTime();
+  
+      drawScreen(String(timeReading) + "sec");
+  
+      if (val < 1023) {
+        //drawScreen("Off");
+      } else {
+        drawScreen("On");
+        timerStart = millis();
+      }
+      delay(100);
+    } 
+  }
 }
 
 static void drawScreen(String text)
@@ -81,14 +94,36 @@ unsigned long getTime()
     unsigned long time = millis();
     
     unsigned long elapsed = (time - timerStart) / 1000;
-    //unsigned long elapsed = time * 1000;
-    Serial.print("time: ");
-    Serial.println(time);
-    Serial.print("timeStart: ");
-    Serial.println(timerStart);
-    Serial.print("elapsed");
-    Serial.println(elapsed);
-    Serial.println("------------");
+    //Serial.print("time: ");
+    //Serial.println(time);
+    //Serial.print("timeStart: ");
+    //Serial.println(timerStart);
+    //Serial.print("elapsed");
+    //Serial.println(elapsed);
+    //Serial.println("------------");
     
     return elapsed;
+}
+
+static int* readSensors()
+{
+  int values[] = {};
+  
+  for (int i = 0; i < 5; i++) {
+    values[i] = readSensor(lugs[i]);
+  }
+  
+  return values;
+}
+
+static boolean readSensor(int pin)
+{
+
+  int val = analogRead(pin);
+  //Serial.println(val);
+  if (val > SENSOR_THRESHOLD) {
+    return true;
+  }
+
+  return false; 
 }
