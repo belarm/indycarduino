@@ -76,7 +76,6 @@ void loop()
         //TODO add check against gas line as well
         if (vals[0] && vals[1] && vals[2] && vals[3] && vals[4]) {
           Serial.println("All lugs have turned green");
-          phaseOne = false;
           cycleComplete = true;
           sw.stop();
         }
@@ -87,6 +86,8 @@ void loop()
     } else {
       // Jack is lowered and sequence should be complete
       Serial.println("Jack has been lowered");
+      phaseOne = false;
+
       
       // Pause for 30 seconds and then reset the delay
       delay(30000);
