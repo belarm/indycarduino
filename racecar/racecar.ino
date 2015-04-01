@@ -1,7 +1,6 @@
 // Arduino program to control a timer based on a series of triggers
 // @author Kristen Arnold
 
-
 #include <Adafruit_GFX.h>   // Core graphics library
 #include <RGBmatrixPanel.h> // Hardware-specific library
 #include <StopWatch.h> // Stop watch library
