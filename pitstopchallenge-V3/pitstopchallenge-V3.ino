@@ -13,7 +13,7 @@
  *  Gas Tank Pin: 53
  *
  *  Start Button:
- *      Pin 51 attached to switch, other pin should be to 5vdc    
+ *      Pin A0 attached to switch, other pin should be to 5vdc    
  *
  *  Reset Button:
  *      The reset button should be attached to the "reset" pin and the other end to ground
