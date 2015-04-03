@@ -4,6 +4,7 @@ import pygame
 import os, sys
 import serial
 import stopwatch
+import time
 from pygame.locals import *
 
 if not pygame.font: print 'Warning, fonts disabled'
@@ -15,8 +16,11 @@ sys.stdout = fsock
 serialPort = '/dev/ttyACM0'
 serialBaud = 9600
 
-fontSize = 950
-fontColor = (255, 255, 0)
+startText = "Press start button to begin"
+fontSizeSmall = 150
+fontSizeLarge = 950
+fontColorYellow = (255, 255, 0)
+fontColorGreen = (0, 255, 0)
 
 timer = False
 
@@ -43,7 +47,7 @@ def start_timer():
 
 	print start
 
-	text = font.render(start, 1, fontColor)
+	text = fontLarge.render(start, 1, fontColorYellow)
 	textpos = text.get_rect(centerx=background.get_width() / 2, centery=background.get_height() / 2)
 	screen.blit(text, textpos)
 	pygame.display.flip()
@@ -64,8 +68,10 @@ if __name__ == '__main__':
 	background = background.convert()
 	background.fill((0, 0, 0))
 
-	font = pygame.font.Font(None, fontSize)
-	text = font.render("Start", 1, fontColor)
+	fontSmall = pygame.font.Font(None, fontSizeSmall)
+	fontLarge = pygame.font.Font(None, fontSizeLarge)
+
+	text = fontSmall.render(startText, 1, fontColorYellow)
 	textpos = text.get_rect(centerx=background.get_width() / 2, centery=background.get_height() / 2)
 
 	screen.blit(background, (0, 0))
@@ -78,20 +84,40 @@ if __name__ == '__main__':
 		serialInput = ser.readline()
 		serialInput = serialInput.strip()
 
+		print serialInput
+
 		if serialInput == "start":
 			timer = stopwatch.Timer()
 			start_timer()
 
 		elif serialInput == "stop":	
-			text = font.render("Start", 1, fontColor)
+			if timer:
+				timer.stop()
+				start = format_time(timer.elapsed)
+
+				text = fontLarge.render(start, 1, fontColorGreen)
+				textpos = text.get_rect(centerx=background.get_width() / 2, centery=background.get_height() / 2)
+
+				screen.fill(pygame.Color("black"))
+				screen.blit(background, (0, 0))
+				screen.blit(text, textpos)
+
+				pygame.display.flip()
+
+				time.sleep(5)
+
+				timer = False
+
+
+			text = fontSmall.render(startText, 1, fontColorYellow)
 			textpos = text.get_rect(centerx=background.get_width() / 2, centery=background.get_height() / 2)
+
+			screen.fill(pygame.Color("black"))
+			screen.blit(background, (0, 0))
 			screen.blit(text, textpos)
 
 			pygame.display.flip()
 
-			if timer:
-				timer.stop()
-				timer = False
 		else:
 			if timer: 
 				start_timer()
