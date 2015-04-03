@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import pygame
 import os, sys
 import serial
@@ -87,8 +89,9 @@ if __name__ == '__main__':
 
 			pygame.display.flip()
 
-			timer.stop()
-			timer = False
+			if timer:
+				timer.stop()
+				timer = False
 		else:
 			if timer: 
 				start_timer()
