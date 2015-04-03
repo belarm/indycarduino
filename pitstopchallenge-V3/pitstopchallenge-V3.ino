@@ -157,7 +157,6 @@ boolean isLugsComplete() {
   
   if (firstPassDone && !secondPassDone) {
 
-
     Serial.println("Begin Second pass");
     
     // Watch lugs and change color when they are engaged
@@ -168,6 +167,9 @@ boolean isLugsComplete() {
         Serial.print("turn off switch ");
         Serial.println(i);
         
+        // Turn on electromagnet to engage wheel
+        digitalWrite(relayGroupOne[5], LOW);
+    
         digitalWrite(relayGroupOne[i], LOW);
         ledState[i] = false;
         
@@ -187,11 +189,7 @@ boolean isLugsComplete() {
     }
     
     if (secondPassDone) {
-      Serial.println("Second Pass Complete");
-      
-      // Turn on electromagnet to engage wheel
-      digitalWrite(relayGroupOne[5], LOW);
-      
+      Serial.println("Second Pass Complete");    
       return true;
     } 
   }
