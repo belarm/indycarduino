@@ -26,14 +26,14 @@
  * 2. When relay is low electromagnet will be engaged
  */
  
-int switchGroupOne[] = {2, 3, 4, 5, 6};
-int switchGroupTwo[] = {8, 9, 10, 11, 12};
+const int switchGroupOne[] = {2, 3, 4, 5, 6};
+const int switchGroupTwo[] = {8, 9, 10, 11, 12};
 
-int relayGroupOne[] = {23, 25, 27, 29, 31, 33};
-int relayGroupTwo[] = {22, 24, 26, 28, 30, 32};
+const int relayGroupOne[] = {23, 25, 27, 29, 31, 33};
+const int relayGroupTwo[] = {22, 24, 26, 28, 30, 32};
 
-int gasTankPin = 53;
-int startPin = A0;
+const int gasTankPin = 53;
+const int startPin = A0;
 
 boolean ledState[] = { false, false, false, false, false };
 boolean stepSequence[] = { false, false };
