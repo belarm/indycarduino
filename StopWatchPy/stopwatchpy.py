@@ -45,8 +45,6 @@ def start_timer():
 
 	start = format_time(timer.elapsed) 
 
-	print start
-
 	text = fontLarge.render(start, 1, fontColorYellow)
 	textpos = text.get_rect(centerx=background.get_width() / 2, centery=background.get_height() / 2)
 	screen.blit(text, textpos)
@@ -56,7 +54,7 @@ if __name__ == '__main__':
 	running = True
 
 	# Initialize Serial
-	ser = serial.Serial(serialPort, serialBaud)
+	ser = serial.Serial(serialPort, serialBaud, timeout=0)
 
 	# Initialize Screen
 	screen = init_pygame()
