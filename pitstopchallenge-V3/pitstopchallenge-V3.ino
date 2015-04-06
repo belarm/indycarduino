@@ -104,9 +104,7 @@ void beginSequence() {
       break; 
     }
   }
-  
-  Serial.println("steps complete");  
-  
+    
   // loop thru state array.  if everything in the sequence is complete then return and stop timer
   // else keep running this function
   Serial.write("stop\n");
@@ -203,25 +201,17 @@ boolean isLugsComplete() {
 
 boolean isGasComplete() {
   static boolean isComplete = false;
-  
-  Serial.println("is gas complete");
-  
-   int val = analogRead(gasTankPin);
+    
+  if (!isComplete) {
+    int val = digitalRead(gasTankPin);
     
     Serial.print("value is: ");
     Serial.println(val);
-    
-  if (!isComplete) {
-//    int val = digitalRead(gasTankPin);
-//    
-//    Serial.print("value is: ");
-//    Serial.println(val);
-    if (val != LOW) {
+    if (val == HIGH) {
       isComplete = true;
     }   
   }
   
-  return false;
   return isComplete;
 }
 
