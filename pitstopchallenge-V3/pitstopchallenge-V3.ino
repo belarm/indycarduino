@@ -102,16 +102,18 @@ void beginSequence() {
 //    Serial.print(" is ");
     
     if (!stepSequence[i]) {
-      //Serial.println("false");
+//      Serial.print(i);
+//      Serial.print(" is ");
+//      Serial.println("false");
       beginSequence(); 
       break; 
     }
     
-    //Serial.println("true");
+//    Serial.println("true");
   }
     
   delay(500);
-  Serial.write("ENDstop\n");
+  Serial.write("stop\n");
   delay(1000);
   softwareReset();
 }
