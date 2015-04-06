@@ -65,7 +65,7 @@ void setup() {
 void loop() {
   
   if (firstRun) {
-    Serial.println("Initializing");
+    //Serial.println("Initializing");
     
     // Set all lugs to green
     for (int i=0; i < sizeof(relayGroupOne); i++) {
@@ -86,33 +86,33 @@ void loop() {
     beginSequence(); 
   }
   
-  // Send dumb character to console so timer doesnt wait for a command
-  //Serial.write(".\n");
 }
 
 void beginSequence() {
-  // Send dumb character to console so timer doesnt wait for a command
-  //Serial.write(".\n");
+  
+  delay(10);
   
   stepSequence[0] = isLugsComplete();
   stepSequence[1] = isGasComplete();
  
   // If any steps in the sequence are not complete keep looping thru this.
   for (int i = 0; i < 2; i++) {
-    Serial.print("step: ");
-    Serial.print(i);
+//    Serial.print("step: ");
+//    Serial.print(i);
+//    Serial.print(" is ");
     
-    Serial.print(" is ");
     if (!stepSequence[i]) {
-      Serial.println("false");
+      //Serial.println("false");
       beginSequence(); 
       break; 
     }
     
-    Serial.println("true");
+    //Serial.println("true");
   }
     
-  //Serial.write("stop\n");
+  delay(500);
+  Serial.write("ENDstop\n");
+  delay(1000);
   softwareReset();
 }
 
@@ -211,8 +211,8 @@ boolean isGasComplete() {
   if (!isComplete) {
     int val = digitalRead(gasTankPin);
     
-    Serial.print("value is: ");
-    Serial.println(val);
+//    Serial.print("value is: ");
+//    Serial.println(val);
     if (val == HIGH) {
       isComplete = true;
     }   
