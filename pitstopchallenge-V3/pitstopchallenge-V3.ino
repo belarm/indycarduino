@@ -32,7 +32,7 @@ const int switchGroupTwo[] = {8, 9, 10, 11, 12};
 const int relayGroupOne[] = {23, 25, 27, 29, 31, 33};
 const int relayGroupTwo[] = {22, 24, 26, 28, 30, 32};
 
-const int gasTankPin = 1;
+const int gasTankPin = A1;
 const int startPin = A0;
 
 boolean ledState[] = { false, false, false, false, false };
@@ -55,7 +55,7 @@ void setup() {
     pinMode(switchGroupTwo[i], INPUT);
   }
   
-  //pinMode(gasTankPin, INPUT);
+  pinMode(gasTankPin, INPUT);
   pinMode(startPin, INPUT);
   
   //pinMode(solidStatePin, OUTPUT);  // set pin as an output 
@@ -95,25 +95,21 @@ void beginSequence() {
   //Serial.write(".\n");
   
   stepSequence[0] = isLugsComplete();
-  //stepSequence[1] = isGasComplete();
+  stepSequence[1] = isGasComplete();
  
   // If any steps in the sequence are not complete keep looping thru this.
   for (int i = 0; i < 2; i++) {
-    Serial.print(i);
     if (!stepSequence[i]) {
-      Serial.println(" is not complete");
       beginSequence(); 
       break; 
     }
   }
   
-  Serial.println("steps complete");
-//  stepsState[1] = digitalRead(gasTankPin);
-  
+  Serial.println("steps complete");  
   
   // loop thru state array.  if everything in the sequence is complete then return and stop timer
   // else keep running this function
-  //Serial.write("stop\n");
+  Serial.write("stop\n");
 }
 
 boolean isLugsComplete() { 
@@ -197,12 +193,36 @@ boolean isLugsComplete() {
     
     if (secondPassDone) {
       //Serial.println("Second Pass Complete");
-      Serial.write("stop\n");
+      //Serial.write("stop\n");
       return true;
     } 
   }
   
   return firstPassDone && secondPassDone;
+}
+
+boolean isGasComplete() {
+  static boolean isComplete = false;
+  
+  Serial.println("is gas complete");
+  
+   int val = analogRead(gasTankPin);
+    
+    Serial.print("value is: ");
+    Serial.println(val);
+    
+  if (!isComplete) {
+//    int val = digitalRead(gasTankPin);
+//    
+//    Serial.print("value is: ");
+//    Serial.println(val);
+    if (val != LOW) {
+      isComplete = true;
+    }   
+  }
+  
+  return false;
+  return isComplete;
 }
 
 
