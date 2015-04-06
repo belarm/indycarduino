@@ -10,7 +10,9 @@
  *      Switch Group #1: 2, 3, 4, 5, 6
  *      Switch Group #2: 8, 9, 10, 11, 12
  *
- *  Gas Tank Pin: 53
+ *  Gas Tank Pin: A1
+ *      Because we are reading the pin with analogRead it is 
+ *      represented as 1 instead of A1 in code below
  *
  *  Start Button:
  *      Pin A0 attached to switch, other pin should be to 5vdc    
@@ -32,20 +34,19 @@ const int switchGroupTwo[] = {8, 9, 10, 11, 12};
 const int relayGroupOne[] = {23, 25, 27, 29, 31, 33};
 const int relayGroupTwo[] = {22, 24, 26, 28, 30, 32};
 
-const int gasTankPin = 53;
+const int gasTankPin = 1; // Analog 1
 const int startPin = A0;
 
 boolean ledState[] = { false, false, false, false, false };
-boolean stepSequence[] = { false, false };
 int startState = 0;
 
 boolean firstRun = true;
 
 void setup() {
   // initialize serial communication:
-  Serial.begin(115200);
+  Serial.begin(9600);
   
-  for (int i=0; i <= 6; i++) {
+  for (int i=0; i < 6; i++) {
     pinMode(relayGroupOne[i], OUTPUT); 
     pinMode(relayGroupTwo[i], OUTPUT);
   }
@@ -65,10 +66,9 @@ void setup() {
 void loop() {
   
   if (firstRun) {
-    //Serial.println("Initializing");
     
-    // Set all lugs to green
-    for (int i=0; i < sizeof(relayGroupOne); i++) {
+    // Set all lugs to green and magnet to on
+    for (int i=0; i < 6; i++) {
       digitalWrite(relayGroupOne[i], LOW);
       digitalWrite(relayGroupTwo[i], LOW); 
     }
@@ -91,24 +91,37 @@ void loop() {
 }
 
 void beginSequence() {
+  static boolean stepSequence[] = { false, false };
   // Send dumb character to console so timer doesnt wait for a command
   //Serial.write(".\n");
   
-  stepSequence[0] = isLugsComplete();
+  if (stepSequence[0] == false) {
+    // Test lug sequence
+    stepSequence[0] = isLugsComplete();
+  }
+  
+  // Test gas tank sequence
+  if (stepSequence[1] == false) {
+    int gas = analogRead(gasTankPin);
+    
+    if (gas != LOW) {
+      stepSequence[1] = true;
+    } else {
+      stepSequence[1] = false;
+    }
+  }
  
   // If any steps in the sequence are not complete keep looping thru this.
-  for (int i = 0; i < sizeof(stepSequence); i++) {
+  for (int i = 0; i < 2; i++) {
+
     if (!stepSequence[i]) {
       beginSequence(); 
       break; 
-    }
+    } 
   }
   
-//  stepsState[1] = digitalRead(gasTankPin);
-  
-  
-  // loop thru state array.  if everything in the sequence is complete then return and stop timer
-  // else keep running this function
+  Serial.write("BLARGstop\n");
+  softwareReset();
   
 }
 
@@ -192,8 +205,7 @@ boolean isLugsComplete() {
     }
     
     if (secondPassDone) {
-      //Serial.println("Second Pass Complete");
-      Serial.write("stop\n");
+      Serial.println("Second Pass Complete");
       return true;
     } 
   }
@@ -201,7 +213,14 @@ boolean isLugsComplete() {
   return false;
 }
 
-
+/**
+ * Restarts program from beginning but 
+ * does not reset the peripherals and registers
+ */
+void softwareReset()
+{
+  asm volatile ("  jmp 0");  
+} 
 
 
 
