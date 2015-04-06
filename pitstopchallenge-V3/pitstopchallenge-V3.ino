@@ -99,15 +99,21 @@ void beginSequence() {
  
   // If any steps in the sequence are not complete keep looping thru this.
   for (int i = 0; i < 2; i++) {
+    Serial.print("step: ");
+    Serial.print(i);
+    
+    Serial.print(" is ");
     if (!stepSequence[i]) {
+      Serial.println("false");
       beginSequence(); 
       break; 
     }
+    
+    Serial.println("true");
   }
     
-  // loop thru state array.  if everything in the sequence is complete then return and stop timer
-  // else keep running this function
-  Serial.write("stop\n");
+  //Serial.write("stop\n");
+  softwareReset();
 }
 
 boolean isLugsComplete() { 
@@ -215,7 +221,12 @@ boolean isGasComplete() {
   return isComplete;
 }
 
-
+void softwareReset()
+// Restarts program from beginning but 
+// does not reset the peripherals and registers
+{
+  asm volatile ("  jmp 0");  
+} 
 
 
 
