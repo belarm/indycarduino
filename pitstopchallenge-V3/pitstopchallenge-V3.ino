@@ -65,7 +65,7 @@ void setup() {
 void loop() {
   
   if (firstRun) {
-    Serial.println("Initializing");
+    //Serial.println("Initializing");
     
     // Set all lugs to green
     for (int i=0; i < sizeof(relayGroupOne); i++) {
@@ -82,7 +82,7 @@ void loop() {
   startState = digitalRead(startPin);
   
   if (startState == HIGH) {
-    Serial.println("Start button has been pushed");
+    //Serial.println("Start button has been pushed");
     beginSequence(); 
   }
   
@@ -91,6 +91,9 @@ void loop() {
 }
 
 void beginSequence() {
+  // Send dumb character to console so timer doesnt wait for a command
+  //Serial.write(".\n");
+  
   stepSequence[0] = isLugsComplete();
  
   // If any steps in the sequence are not complete keep looping thru this.
@@ -138,14 +141,14 @@ boolean isLugsComplete() {
       if (ledState[i]) {
         firstPassDone = true;
       } else {
-        Serial.println("lugs partially changed");
+        //Serial.println("lugs partially changed");
         firstPassDone = false;
         break;
       }
     }
     
     if (firstPassDone) {
-      Serial.println("First Pass Complete");
+      //Serial.println("First Pass Complete");
       
       // Turn off electromagnet to disengage wheel
       digitalWrite(relayGroupOne[5], HIGH);
@@ -157,7 +160,7 @@ boolean isLugsComplete() {
   
   if (firstPassDone && !secondPassDone) {
 
-    Serial.println("Begin Second pass");
+    //Serial.println("Begin Second pass");
     
     // Watch lugs and change color when they are engaged
     for (int i=0; i < sizeof(switchGroupOne); i++) {
@@ -183,13 +186,14 @@ boolean isLugsComplete() {
         secondPassDone = true;
       } else {
         secondPassDone = false;
-        Serial.println("some lugs still on");
+        //Serial.println("some lugs still on");
         break;
       }
     }
     
     if (secondPassDone) {
-      Serial.println("Second Pass Complete");    
+      //Serial.println("Second Pass Complete");
+      Serial.write("stop\n");
       return true;
     } 
   }
