@@ -43,7 +43,7 @@ boolean firstRun = true;
 
 void setup() {
   // initialize serial communication:
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   for (int i=0; i <= 6; i++) {
     pinMode(relayGroupOne[i], OUTPUT); 
@@ -82,7 +82,7 @@ void loop() {
   startState = digitalRead(startPin);
   
   if (startState == HIGH) {
-    //Serial.println("Start button has been pushed");
+    Serial.write("start\n");
     beginSequence(); 
   }
   
@@ -120,14 +120,14 @@ boolean isLugsComplete() {
   if (!firstPassDone && !secondPassDone) {
     
     // Watch lugs and change color when they are engaged
-    for (int i=0; i < sizeof(switchGroupOne); i++) {
-        Serial.print("check switch ");
-        Serial.println(i);
+    for (int i=0; i < 5; i++) {
+//        Serial.print("check switch ");
+//        Serial.println(i);
       int mode = digitalRead(switchGroupOne[i]);
     
       if (mode == HIGH) {
-        Serial.print("turn on switch ");
-        Serial.println(i);
+//        Serial.print("turn on switch ");
+//        Serial.println(i);
         
         digitalWrite(relayGroupOne[i], HIGH);
         ledState[i] = true;
@@ -137,7 +137,7 @@ boolean isLugsComplete() {
   
     // After looping thru lugs, inspect the state of each one and decide if we
     // should continue to phase two
-    for (int i=0; i < sizeof(ledState); i++) {
+    for (int i=0; i < 5; i++) {
       if (ledState[i]) {
         firstPassDone = true;
       } else {
@@ -149,7 +149,7 @@ boolean isLugsComplete() {
     
     if (firstPassDone) {
       //Serial.println("First Pass Complete");
-      
+
       // Turn off electromagnet to disengage wheel
       digitalWrite(relayGroupOne[5], HIGH);
       delay(300);
@@ -163,12 +163,12 @@ boolean isLugsComplete() {
     //Serial.println("Begin Second pass");
     
     // Watch lugs and change color when they are engaged
-    for (int i=0; i < sizeof(switchGroupOne); i++) {
+    for (int i=0; i < 5; i++) {
       int mode = digitalRead(switchGroupOne[i]);
     
       if (mode == HIGH) {
-        Serial.print("turn off switch ");
-        Serial.println(i);
+//        Serial.print("turn off switch ");
+//        Serial.println(i);
         
         // Turn on electromagnet to engage wheel
         digitalWrite(relayGroupOne[5], LOW);
@@ -181,7 +181,7 @@ boolean isLugsComplete() {
     
     // After looping thru lugs, inspect the state of each one and decide if we
     // should continue to phase two
-    for (int i=0; i < sizeof(ledState); i++) {
+    for (int i=0; i < 5; i++) {
       if (!ledState[i]) {
         secondPassDone = true;
       } else {
