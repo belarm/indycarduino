@@ -97,14 +97,8 @@ void beginSequence() {
  
   // If any steps in the sequence are not complete keep looping thru this.
   for (int i = 0; i < 2; i++) {
-//    Serial.print("step: ");
-//    Serial.print(i);
-//    Serial.print(" is ");
     
     if (!stepSequence[i]) {
-//      Serial.print(i);
-//      Serial.print(" is ");
-//      Serial.println("false");
       beginSequence(); 
       break; 
     }
@@ -127,13 +121,9 @@ boolean isLugsComplete() {
     
     // Watch lugs and change color when they are engaged
     for (int i=0; i < 5; i++) {
-//        Serial.print("check switch ");
-//        Serial.println(i);
       int mode = digitalRead(switchGroupOne[i]);
     
       if (mode == HIGH) {
-//        Serial.print("turn on switch ");
-//        Serial.println(i);
         
         digitalWrite(relayGroupOne[i], HIGH);
         ledState[i] = true;
@@ -147,14 +137,12 @@ boolean isLugsComplete() {
       if (ledState[i]) {
         firstPassDone = true;
       } else {
-        //Serial.println("lugs partially changed");
         firstPassDone = false;
         break;
       }
     }
     
     if (firstPassDone) {
-      //Serial.println("First Pass Complete");
 
       // Turn off electromagnet to disengage wheel
       digitalWrite(relayGroupOne[5], HIGH);
@@ -165,16 +153,12 @@ boolean isLugsComplete() {
   // Second Pass, turn all back to green
   
   if (firstPassDone && !secondPassDone) {
-
-    //Serial.println("Begin Second pass");
     
     // Watch lugs and change color when they are engaged
     for (int i=0; i < 5; i++) {
       int mode = digitalRead(switchGroupOne[i]);
     
       if (mode == HIGH) {
-//        Serial.print("turn off switch ");
-//        Serial.println(i);
         
         // Turn on electromagnet to engage wheel
         digitalWrite(relayGroupOne[5], LOW);
@@ -192,14 +176,11 @@ boolean isLugsComplete() {
         secondPassDone = true;
       } else {
         secondPassDone = false;
-        //Serial.println("some lugs still on");
         break;
       }
     }
     
     if (secondPassDone) {
-      //Serial.println("Second Pass Complete");
-      //Serial.write("stop\n");
       return true;
     } 
   }
@@ -213,8 +194,6 @@ boolean isGasComplete() {
   if (!isComplete) {
     int val = digitalRead(gasTankPin);
     
-//    Serial.print("value is: ");
-//    Serial.println(val);
     if (val == HIGH) {
       isComplete = true;
     }   
@@ -223,9 +202,11 @@ boolean isGasComplete() {
   return isComplete;
 }
 
+/**
+ * Restarts program from beginning but 
+ * does not reset the peripherals and registers
+ */
 void softwareReset()
-// Restarts program from beginning but 
-// does not reset the peripherals and registers
 {
   asm volatile ("  jmp 0");  
 } 
