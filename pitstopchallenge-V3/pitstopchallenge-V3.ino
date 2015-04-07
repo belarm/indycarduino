@@ -10,7 +10,8 @@
  *      Switch Group #1: 2, 3, 4, 5, 6
  *      Switch Group #2: 8, 9, 10, 11, 12
  *
- *  Gas Tank Pin: 53
+ *  Gas Tank Pin: A1
+ *      This pin should attach to the arduino flora circuit
  *
  *  Start Button:
  *      Pin A0 attached to switch, other pin should be to 5vdc    
