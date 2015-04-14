@@ -36,6 +36,14 @@ const int relayGroupTwo[] = {22, 24, 26, 28, 30, 32};
 const int gasTankPin = A1;
 const int startPin = A0;
 
+/**
+ * @var restartTimeout
+ *   Change the last number to increment by X minutes.
+ *   NOTE: that times over 2 minutes may eat up memory and cause the
+ *   board to reset on its own
+ */
+const float restartTimeout = 60000 * 0.5;
+
 boolean ledState[] = { false, false, false, false, false };
 boolean stepSequence[] = { false, false };
 int startState = 0;
@@ -90,6 +98,11 @@ void loop() {
 }
 
 void beginSequence() {
+    
+  // Timeout if no one completes the sequence
+  if (millis() > restartTimeout) {
+    softwareReset();
+  }
   
   delay(10);
   
@@ -209,7 +222,11 @@ boolean isGasComplete() {
  */
 void softwareReset()
 {
+  delay(100);
+  
   asm volatile ("  jmp 0");  
+  
+  delay(100);
 } 
 
 
