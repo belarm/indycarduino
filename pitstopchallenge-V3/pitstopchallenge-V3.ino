@@ -44,6 +44,15 @@ const int startPin = A0;
  */
 const float restartTimeout = 60000 * 2;
 
+/**
+ * @var useTwoWheels
+ * Set true to support a system with two wheels with lugs
+ * Set false to support only one set of wheels
+ */
+const boolean useTwoWheels = true;
+
+/* Do not change anything below this line */
+
 boolean ledState[] = { false, false, false, false, false, false, false, false, false, false };
 
 boolean stepSequence[] = { false, false };
@@ -138,14 +147,19 @@ boolean isLugsComplete() {
     OneSecondPassDone = isSecondPass(relayGroupOne, switchGroupOne, 0);
   }
   
-  // Second Wheel, First Pass, turn all to amber
-  if (!TwoFirstPassDone && !TwoSecondPassDone) {
-    TwoFirstPassDone = isFirstPass(relayGroupTwo, switchGroupTwo, 5);
-  }
-  
-  // Second Wheel, Second Pass, turn all back to green
-  if (TwoFirstPassDone && !TwoSecondPassDone) {
-    TwoSecondPassDone = isSecondPass(relayGroupTwo, switchGroupTwo, 5);
+  if (useTwoWheels) {
+    // Second Wheel, First Pass, turn all to amber
+    if (!TwoFirstPassDone && !TwoSecondPassDone) {
+      TwoFirstPassDone = isFirstPass(relayGroupTwo, switchGroupTwo, 5);
+    }
+    
+    // Second Wheel, Second Pass, turn all back to green
+    if (TwoFirstPassDone && !TwoSecondPassDone) {
+      TwoSecondPassDone = isSecondPass(relayGroupTwo, switchGroupTwo, 5);
+    }
+  } else {
+    TwoFirstPassDone = true;
+    TwoSecondPassDone = true;
   }
   
   return OneFirstPassDone && OneSecondPassDone && TwoFirstPassDone && TwoSecondPassDone;
