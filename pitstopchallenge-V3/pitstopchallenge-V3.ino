@@ -26,7 +26,7 @@
  *
  * 2. When relay is low electromagnet will be engaged
  */
- 
+  
 const int switchGroupOne[] = {2, 3, 4, 5, 6};
 const int switchGroupTwo[] = {8, 9, 10, 11, 12};
 
@@ -42,9 +42,10 @@ const int startPin = A0;
  *   NOTE: that times over 2 minutes may eat up memory and cause the
  *   board to reset on its own
  */
-const float restartTimeout = 60000 * 0.5;
+const float restartTimeout = 60000 * 2;
 
-boolean ledState[] = { false, false, false, false, false };
+boolean ledState[] = { false, false, false, false, false, false, false, false, false, false };
+
 boolean stepSequence[] = { false, false };
 int startState = 0;
 
@@ -98,7 +99,7 @@ void loop() {
 }
 
 void beginSequence() {
-    
+  
   // Timeout if no one completes the sequence
   if (millis() > restartTimeout) {
     softwareReset();
@@ -116,92 +117,107 @@ void beginSequence() {
       beginSequence(); 
       break; 
     }
-    
-//    Serial.println("true");
   }
     
-  delay(500);
-  Serial.write("stop\n");
-  delay(1000);
   softwareReset();
 }
 
 boolean isLugsComplete() { 
-  static boolean firstPassDone = false;
-  static boolean secondPassDone = false;
+  static boolean OneFirstPassDone = false;
+  static boolean OneSecondPassDone = false;
+  static boolean TwoFirstPassDone = false;
+  static boolean TwoSecondPassDone = false;
  
-  // First pass, turn all to amber
-  if (!firstPassDone && !secondPassDone) {
-    
-    // Watch lugs and change color when they are engaged
-    for (int i=0; i < 5; i++) {
-      int mode = digitalRead(switchGroupOne[i]);
-    
-      if (mode == HIGH) {
-        
-        digitalWrite(relayGroupOne[i], HIGH);
-        ledState[i] = true;
-        
-      }
-    }
-  
-    // After looping thru lugs, inspect the state of each one and decide if we
-    // should continue to phase two
-    for (int i=0; i < 5; i++) {
-      if (ledState[i]) {
-        firstPassDone = true;
-      } else {
-        firstPassDone = false;
-        break;
-      }
-    }
-    
-    if (firstPassDone) {
-
-      // Turn off electromagnet to disengage wheel
-      digitalWrite(relayGroupOne[5], HIGH);
-      delay(300);
-    } 
+  // First Wheel, First pass, turn all to amber
+  if (!OneFirstPassDone && !OneSecondPassDone) {
+    OneFirstPassDone = isFirstPass(relayGroupOne, switchGroupOne, 0);
   }
     
-  // Second Pass, turn all back to green
-  
-  if (firstPassDone && !secondPassDone) {
-    
-    // Watch lugs and change color when they are engaged
-    for (int i=0; i < 5; i++) {
-      int mode = digitalRead(switchGroupOne[i]);
-    
-      if (mode == HIGH) {
-        
-        // Turn on electromagnet to engage wheel
-        digitalWrite(relayGroupOne[5], LOW);
-    
-        digitalWrite(relayGroupOne[i], LOW);
-        ledState[i] = false;
-        
-      }
-    }
-    
-    // After looping thru lugs, inspect the state of each one and decide if we
-    // should continue to phase two
-    for (int i=0; i < 5; i++) {
-      if (!ledState[i]) {
-        secondPassDone = true;
-      } else {
-        secondPassDone = false;
-        break;
-      }
-    }
-    
-    if (secondPassDone) {
-      return true;
-    } 
+  // First Wheel, Second Pass, turn all back to green
+  if (OneFirstPassDone && !OneSecondPassDone) {
+    OneSecondPassDone = isSecondPass(relayGroupOne, switchGroupOne, 0);
   }
   
-  return firstPassDone && secondPassDone;
+  // Second Wheel, First Pass, turn all to amber
+  if (!TwoFirstPassDone && !TwoSecondPassDone) {
+    TwoFirstPassDone = isFirstPass(relayGroupTwo, switchGroupTwo, 5);
+  }
+  
+  // Second Wheel, Second Pass, turn all back to green
+  if (TwoFirstPassDone && !TwoSecondPassDone) {
+    TwoSecondPassDone = isSecondPass(relayGroupTwo, switchGroupTwo, 5);
+  }
+  
+  return OneFirstPassDone && OneSecondPassDone && TwoFirstPassDone && TwoSecondPassDone;
 }
 
+/**
+ * First pass will turn lights from green to amber
+ */
+boolean isFirstPass(const int relayGroup[], const int switchGroup[], int offset) {
+  
+  // Watch lugs and change color when they are engaged
+  for (int i=0; i < 5; i++) {
+    int mode = digitalRead(switchGroup[i]);
+  
+    if (mode == HIGH) {
+      
+      digitalWrite(relayGroup[i], HIGH);
+    
+      ledState[i+offset] = true;
+      
+    }
+  }
+
+  // After looping thru lugs, inspect the state of each one and decide if we
+  // should continue to phase two
+  for (int i=offset; i < offset+5; i++) {
+    if (!ledState[i]) {
+      return false;
+    }
+  }
+
+  // Turn off electromagnet to disengage wheel
+  digitalWrite(relayGroup[5], HIGH);
+  delay(300);
+
+  return true;
+}
+
+/**
+ * Second pass will turn lights from amber back to green
+ */
+boolean isSecondPass(const int relayGroup[], int const switchGroup[], int offset) {
+  // Watch lugs and change color when they are engaged
+  for (int i=0; i < 5; i++) {
+    int mode = digitalRead(switchGroup[i]);
+  
+    if (mode == HIGH) {
+      
+      // Turn on electromagnet to engage wheel
+      digitalWrite(relayGroup[5], LOW);
+  
+      digitalWrite(relayGroup[i], LOW);
+      ledState[i+offset] = false;
+      
+    }
+  }
+  
+  // After looping thru lugs, inspect the state of each one and decide if we
+  // should continue to phase two
+  for (int i=offset; i < offset+5; i++) {
+    if (ledState[i]) {
+      return false;
+    }
+  }
+  
+  return true; 
+}
+
+/**
+ * Listen for a signal from the arduino flora to tell us
+ * that the gas tank function has completed
+ */
 boolean isGasComplete() {
   static boolean isComplete = false;
     
@@ -222,6 +238,8 @@ boolean isGasComplete() {
  */
 void softwareReset()
 {
+  delay(100);
+  Serial.write("stop\n");
   delay(100);
   
   asm volatile ("  jmp 0");  
