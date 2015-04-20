@@ -57,6 +57,7 @@ boolean ledState[] = { false, false, false, false, false, false, false, false, f
 
 boolean stepSequence[] = { false, false };
 int startState = 0;
+int i = 0;
 
 boolean firstRun = true;
 
@@ -104,27 +105,34 @@ void loop() {
     Serial.write("start\n");
     beginSequence(); 
   }
+
+  
   
 }
 
 void beginSequence() {
-  
+
   // Timeout if no one completes the sequence
   if (millis() > restartTimeout) {
     softwareReset();
   }
   
-  delay(10);
+  delay(50);
   
-  stepSequence[0] = isLugsComplete();
-  stepSequence[1] = isGasComplete();
+  if (!stepSequence[0]) {
+    stepSequence[0] = isLugsComplete();
+  }
+
+  if (!stepSequence[1]) {
+    stepSequence[1] = isGasComplete();
+  }
  
   // If any steps in the sequence are not complete keep looping thru this.
-  for (int i = 0; i < 2; i++) {
+  for (i = 0; i < 2; i++) {
     
     if (!stepSequence[i]) {
       beginSequence(); 
-      break; 
+      break;
     }
   }
     
@@ -172,9 +180,10 @@ boolean isFirstPass(const int relayGroup[], const int switchGroup[], int offset)
   
   // Watch lugs and change color when they are engaged
   for (int i=0; i < 5; i++) {
-    int mode = digitalRead(switchGroup[i]);
+    // int mode = digitalRead(switchGroup[i]);
   
-    if (mode == HIGH) {
+    // if (mode == HIGH) {
+    if (digitalRead(switchGroup[i]) == HIGH) {
       
       digitalWrite(relayGroup[i], HIGH);
     
@@ -204,9 +213,10 @@ boolean isFirstPass(const int relayGroup[], const int switchGroup[], int offset)
 boolean isSecondPass(const int relayGroup[], int const switchGroup[], int offset) {
   // Watch lugs and change color when they are engaged
   for (int i=0; i < 5; i++) {
-    int mode = digitalRead(switchGroup[i]);
+    // int mode = digitalRead(switchGroup[i]);
   
-    if (mode == HIGH) {
+    // if (mode == HIGH) {
+    if (digitalRead(switchGroup[i]) == HIGH) {
       
       // Turn on electromagnet to engage wheel
       digitalWrite(relayGroup[5], LOW);
