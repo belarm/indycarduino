@@ -18,7 +18,8 @@ serialBaud = 9600
 
 startText = "Press start button to begin"
 fontSizeSmall = 150
-fontSizeLarge = 950
+#fontSizeLarge = 950
+fontSizeLarge = 550
 fontColorYellow = (255, 255, 0)
 fontColorGreen = (0, 255, 0)
 
@@ -38,8 +39,10 @@ def get_screen():
 
 def format_time(seconds):
 	m, s = divmod(seconds, 60)
+	ms = int(round(seconds * 100))
+	ms = str(ms)[-2:]
 
-	return "%02d:%02d" % (m, s)
+	return "%02d:%02d:%02s" % (m, s, ms)
 
 def start_timer():
 
