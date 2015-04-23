@@ -19,6 +19,12 @@
  *  Reset Button:
  *      The reset button should be attached to the "reset" pin and the other end to ground
  *
+ *  Triggers:
+ *      Lug trigger: 52
+ *        This pin sends a HIGH signal when any lugs are triggered
+ *      Gas Tank trigger: 53
+ *        This pin sends a HIGH signal when the gas tank sequence is complete
+ *
  * NOTES:
  *
  * 1. When relays are in a state of LOW they will be green or engaged.  
@@ -35,6 +41,15 @@ const int relayGroupTwo[] = {22, 24, 26, 28, 30, 32};
 
 const int gasTankPin = A1;
 const int startPin = A0;
+
+const int lugTrigger = 52;
+const int gasTrigger = 53;
+
+/**
+ * @var triggerDelay
+ *  Set the interval in milliseconds to keep the trigger pins HIGH.
+ */
+const int triggerDelay = 10;
 
 /**
  * @var restartTimeout
@@ -186,6 +201,8 @@ boolean isFirstPass(const int relayGroup[], const int switchGroup[], int offset)
     if (digitalRead(switchGroup[i]) == HIGH) {
       
       digitalWrite(relayGroup[i], HIGH);
+
+      trigger(lugTrigger);
     
       ledState[i+offset] = true;
       
@@ -222,6 +239,9 @@ boolean isSecondPass(const int relayGroup[], int const switchGroup[], int offset
       digitalWrite(relayGroup[5], LOW);
   
       digitalWrite(relayGroup[i], LOW);
+
+      trigger(lugTrigger);
+
       ledState[i+offset] = false;
       
     }
@@ -249,6 +269,8 @@ boolean isGasComplete() {
     int val = digitalRead(gasTankPin);
     
     if (val == HIGH) {
+      trigger(gasTrigger);
+
       isComplete = true;
     }   
   }
@@ -271,7 +293,11 @@ void softwareReset()
   delay(100);
 } 
 
-
+void trigger(const int pin) {
+  digitalWrite(pin, HIGH);
+  delay(triggerDelay);
+  digitalWrite(pin, LOW);
+}
 
 
 
