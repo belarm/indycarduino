@@ -49,7 +49,7 @@ const int gasTrigger = 53;
  * @var triggerDelay
  *  Set the interval in milliseconds to keep the trigger pins HIGH.
  */
-const int triggerDelay = 10;
+const int triggerDelay = 100;
 
 /**
  * @var restartTimeout
@@ -121,7 +121,10 @@ void loop() {
     beginSequence(); 
   }
 
-  
+  // Timeout if no one completes the sequence
+  if (millis() > restartTimeout) {
+    softwareReset();
+  }  
   
 }
 
