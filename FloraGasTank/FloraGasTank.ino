@@ -4,6 +4,7 @@
 #define PIN 12
 #define SWITCHPIN 6
 #define OUTPIN 9
+#define TRIGGERPIN 10
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -27,6 +28,8 @@ void setup() {
   Serial.write("Initializing");
   pinMode(SWITCHPIN, INPUT);
   pinMode(OUTPIN, OUTPUT);
+  pinMode(TRIGGERPIN, OUTPUT);
+  
 }
 
 void loop() {
@@ -39,6 +42,8 @@ void loop() {
   int val = digitalRead(SWITCHPIN);
   
   if (val == HIGH) {
+    
+    digitalWrite(TRIGGERPIN, HIGH);
     
     // Begin light sequence, if sensor stops at any point reset the sequence
     
@@ -58,11 +63,14 @@ void loop() {
     setLights(green, 0);
     
     digitalWrite(OUTPIN, HIGH);
+    digitalWrite(TRIGGERPIN, LOW);
    
     delay(2000);  
   } else {
     // Shut off lights     
     setLights(0, 0);
+    
+    digitalWrite(TRIGGERPIN, LOW);
   }
 }
 
