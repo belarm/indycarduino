@@ -52,6 +52,12 @@ const int gasTrigger = 53;
 const int triggerDelay = 100;
 
 /**
+ * @var wheelDelay
+ * the time to pause after all lugs have been disengaged
+ */
+const int wheelDelay = 500;
+
+/**
  * @var restartTimeout
  *   Change the last number to increment by X minutes.
  *   NOTE: that times over 2 minutes may eat up memory and cause the
@@ -222,7 +228,7 @@ boolean isFirstPass(const int relayGroup[], const int switchGroup[], int offset)
 
   // Turn off electromagnet to disengage wheel
   digitalWrite(relayGroup[5], HIGH);
-  delay(300);
+  delay(wheelDelay);
 
   return true;
 }
