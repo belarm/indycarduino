@@ -58,6 +58,14 @@ const int triggerDelay = 100;
 const int wheelDelay = 500;
 
 /**
+ * @var startUpDelay
+ * We send the stop command twice to ensure proper termination
+ * of the display.  Change how long the delay is between signals
+ * by adjusting this value in milliseconds.
+ */
+const int startUpDelay = 5000;
+
+/**
  * @var restartTimeout
  *   Change the last number to increment by X minutes.
  *   NOTE: that times over 2 minutes may eat up memory and cause the
@@ -106,7 +114,8 @@ void setup() {
 void loop() {
   
   if (firstRun) {
-    //Serial.println("Initializing");
+    // Send stop command just in case timer is still running
+    Serial.write("stop\n");
     
     // Set all lugs to green
     for (int i=0; i < sizeof(relayGroupOne); i++) {
@@ -114,6 +123,7 @@ void loop() {
       digitalWrite(relayGroupTwo[i], LOW); 
     }
     
+    delay(startUpDelay);
     // Send stop command just in case timer is still running
     Serial.write("stop\n");
   
