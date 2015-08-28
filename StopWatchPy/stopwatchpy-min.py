@@ -2,20 +2,20 @@
 
 import pygame
 import os, sys
-import serial
-import stopwatch
+#import serial
+#import stopwatch
 import time
 from pygame.locals import *
 
 if not pygame.font: print 'Warning, fonts disabled'
 
-#fsock = open('error.log', 'w')
-#sys.stderr = fsock
-#sys.stdout = fsock
+fsock = open('error.log', 'w')
+sys.stderr = fsock
+sys.stdout = fsock
 
 #serialPort = '/dev/ttyACM0'
-serialPort = '/dev/ttyS9'
-serialBaud = 9600
+#serialPort = '/dev/ttyS8'
+#serialBaud = 9600
 
 startText = "Press start button to begin"
 fontSizeSmall = 150
@@ -37,7 +37,7 @@ def init_pygame():
 def get_screen():
 	size = (pygame.display.Info().current_w, pygame.display.Info().current_h)
 #	return pygame.display.set_mode(size, pygame.FULLSCREEN)
-	return pygame.display.set_mode((800,600))
+	return pygame.display.set_mode((1600,1024))
 
 def format_time(seconds):
 	m, s = divmod(seconds, 60)
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 	running = True
 
 	# Initialize Serial
-	ser = serial.Serial(serialPort, serialBaud, timeout=0)
+#	ser = serial.Serial(serialPort, serialBaud, timeout=0)
 
 	# Initialize Screen
 	screen = init_pygame()
@@ -84,10 +84,10 @@ if __name__ == '__main__':
 	
 	while running:
 		screen.fill(pygame.Color("black"))
-		serialInput = ser.readline()
+		serialInput = readline()
 		serialInput = serialInput.strip()
-		if len(serialInput):
-			print serialInput
+
+		print serialInput
 
 		if serialInput == "start":
 			timer = stopwatch.Timer()
